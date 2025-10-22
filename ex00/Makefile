@@ -5,7 +5,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++17
 
 OBJ_DIR = obj
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
-NAME = BitcoinExchange
+NAME = btc
 
 all: $(NAME)
 
