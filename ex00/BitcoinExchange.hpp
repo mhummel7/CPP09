@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 09:25:41 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/22 09:40:01 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/10/22 11:13:06 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ class BitcoinExchange {
 		std::string trim(const std::string& str);
 
 	public:
-		BitcoinExchange();
+		BitcoinExchange(); // Loads the DB from data.csv
 		BitcoinExchange(const BitcoinExchange& other);
 		BitcoinExchange& operator=(const BitcoinExchange& other);
 		~BitcoinExchange();
 
-		void loadDatabase(const std::string& inputFile);
+		void processInput(const std::string& inputFile);
 };
 
 #endif
