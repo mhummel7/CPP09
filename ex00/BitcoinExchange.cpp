@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 09:56:16 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/22 12:49:26 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/10/23 12:06:47 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,15 @@ void BitcoinExchange::processInput(const std::string& inputFile) {
 		std::cerr << "Error: Could not open file." << std::endl;
 		return;
 	}
+	// Check if file is empty
+    inFile.seekg(0, std::ios::end);
+    if (inFile.tellg() == 0) {
+        std::cerr << "Error: empty input file." << std::endl;
+        inFile.close();
+        return;
+    }
+    inFile.seekg(0, std::ios::beg);
+
 	std::string line;
 	while (std::getline(inFile, line)) {
 		std::string original_line = line;  // For error messages
