@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 09:31:38 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/29 09:47:09 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/24 10:22:55 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,15 @@ void PmergeMe::parseInput(int argc, char** argv) {
 		int num;
 		ss >> num;
 		if (ss.fail() || num < 0 || uniqueCheck.count(num) || input.length() > 10 || num > INT_MAX) {
-			throw std::runtime_error("Error: input is invalid");
+			throw std::runtime_error("Error");
 		}
 		uniqueCheck.insert(num);
 		_unsorted.push_back(num);
 	}
 }
 
-template <typename PairContainer>
-void PmergeMe::createPairs(PairContainer *pairs, const std::vector<int>& input, int *additional_value) {
+// Vector-spezifische Funktionen
+void PmergeMe::createPairsVec(std::vector<std::pair<int, int>> *pairs, const std::vector<int>& input, int *additional_value) {
 	*additional_value = -1;
 	for (size_t i = 0; i < input.size(); i += 2) {
 		if (i + 1 < input.size()) {
@@ -56,32 +56,29 @@ void PmergeMe::createPairs(PairContainer *pairs, const std::vector<int>& input, 
 	}
 }
 
-template <typename PairContainer>
-void PmergeMe::sortPairs(PairContainer *pairs) {
-	for (typename PairContainer::iterator it = pairs->begin(); it != pairs->end(); ++it) {
+void PmergeMe::sortPairsVec(std::vector<std::pair<int, int>> *pairs) {
+	for (std::vector<std::pair<int, int>>::iterator it = pairs->begin(); it != pairs->end(); ++it) {
 		if (it->first > it->second) {
 			std::swap(it->first, it->second);
 		}
 	}
 }
 
-template <typename PairContainer>
-void PmergeMe::mergeSort(PairContainer *pairs, typename PairContainer::iterator start, typename PairContainer::iterator end, size_t size) {
+void PmergeMe::mergeSortVec(std::vector<std::pair<int, int>> *pairs, std::vector<std::pair<int, int>>::iterator start, std::vector<std::pair<int, int>>::iterator end, size_t size) {
 	if (size == 0 && start != end) size = std::distance(start, end);
 	if (size <= 1) return;
 
 	size_t firstHalf = size / 2;
-	typename PairContainer::iterator center = start;
+	std::vector<std::pair<int, int>>::iterator center = start;
 	std::advance(center, firstHalf);
 
-	mergeSort(pairs, start, center, firstHalf);
-	mergeSort(pairs, center, end, size - firstHalf);
+	mergeSortVec(pairs, start, center, firstHalf);
+	mergeSortVec(pairs, center, end, size - firstHalf);
 	std::inplace_merge(start, center, end, custom_cmp);
 }
 
-template <typename PairContainer>
-void PmergeMe::initMainChain(std::vector<int> *main_chain, const PairContainer& pairs) {
-	for (typename PairContainer::const_iterator it = pairs.begin(); it != pairs.end(); ++it) {
+void PmergeMe::initMainChainVec(std::vector<int> *main_chain, const std::vector<std::pair<int, int>>& pairs) {
+	for (std::vector<std::pair<int, int>>::const_iterator it = pairs.begin(); it != pairs.end(); ++it) {
 		main_chain->push_back(it->second);
 	}
 	if (!pairs.empty()) {
@@ -89,30 +86,18 @@ void PmergeMe::initMainChain(std::vector<int> *main_chain, const PairContainer& 
 	}
 }
 
-template <typename PairContainer>
-void PmergeMe::initMainChain(std::deque<int> *main_chain, const PairContainer& pairs) {
-	for (typename PairContainer::const_iterator it = pairs.begin(); it != pairs.end(); ++it) {
-		main_chain->push_back(it->second);
-	}
-	if (!pairs.empty()) {
-		main_chain->push_front(pairs.begin()->first);
-	}
-}
-
-template <typename Container>
-void PmergeMe::binarySearchInsertion(Container *main_chain, typename Container::iterator end, int val) {
-	typename Container::iterator place_to_insert = std::lower_bound(main_chain->begin(), end, val);
+void PmergeMe::binarySearchInsertionVec(std::vector<int> *main_chain, std::vector<int>::iterator end, int val) {
+	std::vector<int>::iterator place_to_insert = std::lower_bound(main_chain->begin(), end, val);
 	main_chain->insert(place_to_insert, val);
 }
 
-template <typename Container, typename PairContainer>
-void PmergeMe::insertIntoMainChain(const PairContainer& pairs, Container *main_chain, int additional_value) {
+void PmergeMe::insertIntoMainChainVec(const std::vector<std::pair<int, int>>& pairs, std::vector<int> *main_chain, int additional_value) {
 	size_t jacobsthal[] = {1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461, 10923, 21845, 43691, 87381, 174763, 349525, 699051, 1398101, 2796203, 5592405, 11184811, 22369621, 44739243, 89478485, 178956971, 357913941, 715827883, 1431655765};
 	size_t jacobsthal_idx = 1;
 
-	typename Container::iterator slice_delim_it;
-	typename PairContainer::const_iterator pair_it;
-	typename PairContainer::const_iterator last_jacob_it = pairs.begin();
+	std::vector<std::pair<int, int>>::const_iterator pair_it;
+	std::vector<std::pair<int, int>>::const_iterator last_jacob_it = pairs.begin();
+	std::vector<int>::iterator slice_delim_it;
 
 	while (jacobsthal[jacobsthal_idx] <= pairs.size()) {
 		pair_it = pairs.begin();
@@ -122,7 +107,7 @@ void PmergeMe::insertIntoMainChain(const PairContainer& pairs, Container *main_c
 		int insertion_counter = 0;
 		while (jacobsthal[jacobsthal_idx] - insertion_counter > jacobsthal[jacobsthal_idx - 1]) {
 			slice_delim_it = std::find(main_chain->begin(), main_chain->end(), pair_it->second);
-			binarySearchInsertion(main_chain, slice_delim_it, pair_it->first);
+			binarySearchInsertionVec(main_chain, slice_delim_it, pair_it->first);
 			if (pair_it == pairs.begin()) break;
 			--pair_it;
 			insertion_counter++;
@@ -135,23 +120,124 @@ void PmergeMe::insertIntoMainChain(const PairContainer& pairs, Container *main_c
 		if (pair_it != pairs.begin()) --pair_it;
 		while (pair_it != last_jacob_it) {
 			slice_delim_it = std::find(main_chain->begin(), main_chain->end(), pair_it->second);
-			binarySearchInsertion(main_chain, slice_delim_it, pair_it->first);
+			binarySearchInsertionVec(main_chain, slice_delim_it, pair_it->first);
 			if (pair_it == pairs.begin()) break;
 			--pair_it;
 		}
 	}
 
 	if (additional_value != -1) {
-		binarySearchInsertion(main_chain, main_chain->end(), additional_value);
+		binarySearchInsertionVec(main_chain, main_chain->end(), additional_value);
 	}
 }
 
-template <typename Container, typename PairContainer>
-double PmergeMe::sortAndMeasure(Container& main_chain, const PairContainer& pairs, int additional_value) {
+double PmergeMe::sortAndMeasureVec(std::vector<int>& main_chain, std::vector<std::pair<int, int>>& pairs, int additional_value) {
 	auto start = std::chrono::high_resolution_clock::now();
-	insertIntoMainChain(pairs, &main_chain, additional_value);
+	sortPairsVec(&pairs);
+	mergeSortVec(&pairs, pairs.begin(), pairs.end(), 0);
+	initMainChainVec(&main_chain, pairs);
+	insertIntoMainChainVec(pairs, &main_chain, additional_value);
 	auto end = std::chrono::high_resolution_clock::now();
-	return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	std::chrono::duration<double, std::micro> duration = end - start;
+	return duration.count();
+}
+
+// Deque-spezifische Funktionen (dupliziert)
+void PmergeMe::createPairsDeq(std::deque<std::pair<int, int>> *pairs, const std::vector<int>& input, int *additional_value) {
+	*additional_value = -1;
+	for (size_t i = 0; i < input.size(); i += 2) {
+		if (i + 1 < input.size()) {
+			pairs->push_back(std::make_pair(input[i], input[i + 1]));
+		} else {
+			*additional_value = input[i];
+		}
+	}
+}
+
+void PmergeMe::sortPairsDeq(std::deque<std::pair<int, int>> *pairs) {
+	for (std::deque<std::pair<int, int>>::iterator it = pairs->begin(); it != pairs->end(); ++it) {
+		if (it->first > it->second) {
+			std::swap(it->first, it->second);
+		}
+	}
+}
+
+void PmergeMe::mergeSortDeq(std::deque<std::pair<int, int>> *pairs, std::deque<std::pair<int, int>>::iterator start, std::deque<std::pair<int, int>>::iterator end, size_t size) {
+	if (size == 0 && start != end) size = std::distance(start, end);
+	if (size <= 1) return;
+
+	size_t firstHalf = size / 2;
+	std::deque<std::pair<int, int>>::iterator center = start;
+	std::advance(center, firstHalf);
+
+	mergeSortDeq(pairs, start, center, firstHalf);
+	mergeSortDeq(pairs, center, end, size - firstHalf);
+	std::inplace_merge(start, center, end, custom_cmp);
+}
+
+void PmergeMe::initMainChainDeq(std::deque<int> *main_chain, const std::deque<std::pair<int, int>>& pairs) {
+	for (std::deque<std::pair<int, int>>::const_iterator it = pairs.begin(); it != pairs.end(); ++it) {
+		main_chain->push_back(it->second);
+	}
+	if (!pairs.empty()) {
+		main_chain->push_front(pairs.begin()->first);
+	}
+}
+
+void PmergeMe::binarySearchInsertionDeq(std::deque<int> *main_chain, std::deque<int>::iterator end, int val) {
+	std::deque<int>::iterator place_to_insert = std::lower_bound(main_chain->begin(), end, val);
+	main_chain->insert(place_to_insert, val);
+}
+
+void PmergeMe::insertIntoMainChainDeq(const std::deque<std::pair<int, int>>& pairs, std::deque<int> *main_chain, int additional_value) {
+	size_t jacobsthal[] = {1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461, 10923, 21845, 43691, 87381, 174763, 349525, 699051, 1398101, 2796203, 5592405, 11184811, 22369621, 44739243, 89478485, 178956971, 357913941, 715827883, 1431655765};
+	size_t jacobsthal_idx = 1;
+
+	std::deque<std::pair<int, int>>::const_iterator pair_it;
+	std::deque<std::pair<int, int>>::const_iterator last_jacob_it = pairs.begin();
+	std::deque<int>::iterator slice_delim_it;
+
+	while (jacobsthal[jacobsthal_idx] <= pairs.size()) {
+		pair_it = pairs.begin();
+		std::advance(pair_it, jacobsthal[jacobsthal_idx] - 1);
+		last_jacob_it = pair_it;
+
+		int insertion_counter = 0;
+		while (jacobsthal[jacobsthal_idx] - insertion_counter > jacobsthal[jacobsthal_idx - 1]) {
+			slice_delim_it = std::find(main_chain->begin(), main_chain->end(), pair_it->second);
+			binarySearchInsertionDeq(main_chain, slice_delim_it, pair_it->first);
+			if (pair_it == pairs.begin()) break;
+			--pair_it;
+			insertion_counter++;
+		}
+		jacobsthal_idx++;
+	}
+
+	if (jacobsthal[jacobsthal_idx] != pairs.size()) {
+		pair_it = pairs.end();
+		if (pair_it != pairs.begin()) --pair_it;
+		while (pair_it != last_jacob_it) {
+			slice_delim_it = std::find(main_chain->begin(), main_chain->end(), pair_it->second);
+			binarySearchInsertionDeq(main_chain, slice_delim_it, pair_it->first);
+			if (pair_it == pairs.begin()) break;
+			--pair_it;
+		}
+	}
+
+	if (additional_value != -1) {
+		binarySearchInsertionDeq(main_chain, main_chain->end(), additional_value);
+	}
+}
+
+double PmergeMe::sortAndMeasureDeq(std::deque<int>& main_chain, std::deque<std::pair<int, int>>& pairs, int additional_value) {
+	auto start = std::chrono::high_resolution_clock::now();
+	sortPairsDeq(&pairs);
+	mergeSortDeq(&pairs, pairs.begin(), pairs.end(), 0);
+	initMainChainDeq(&main_chain, pairs);
+	insertIntoMainChainDeq(pairs, &main_chain, additional_value);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::micro> duration = end - start;
+	return duration.count();
 }
 
 void PmergeMe::printContainer(const std::vector<int>& arr) const {
@@ -167,27 +253,20 @@ void PmergeMe::execute() {
 
 	std::vector<std::pair<int, int>> vecPairs;
 	int vecAdditional = -1;
-	createPairs(&vecPairs, _unsorted, &vecAdditional);
-	sortPairs(&vecPairs);
-	mergeSort(&vecPairs, vecPairs.begin(), vecPairs.end(), 0);
-
+	createPairsVec(&vecPairs, _unsorted, &vecAdditional);
 	std::vector<int> vecMain;
-	initMainChain(&vecMain, vecPairs);
-	double vecTime = sortAndMeasure(vecMain, vecPairs, vecAdditional);
+	double vecTime = sortAndMeasureVec(vecMain, vecPairs, vecAdditional);
 
 	std::deque<std::pair<int, int>> deqPairs;
 	int deqAdditional = -1;
-	createPairs(&deqPairs, _unsorted, &deqAdditional);
-	sortPairs(&deqPairs);
-	mergeSort(&deqPairs, deqPairs.begin(), deqPairs.end(), 0);
-
+	createPairsDeq(&deqPairs, _unsorted, &deqAdditional);
 	std::deque<int> deqMain;
-	initMainChain(&deqMain, deqPairs);
-	double deqTime = sortAndMeasure(deqMain, deqPairs, deqAdditional);
+	double deqTime = sortAndMeasureDeq(deqMain, deqPairs, deqAdditional);
 
 	std::cout << "After: ";
 	printContainer(vecMain);
 
-	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::vector : " << vecTime << " us" << std::endl;
-	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::deque : " << deqTime << " us" << std::endl;
+	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::vector : " << std::fixed << std::setprecision(5) << vecTime << " us" << std::endl;
+	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::deque : " << std::fixed << std::setprecision(5) << deqTime << " us" << std::endl;
 }
+
