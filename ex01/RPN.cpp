@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 13:20:13 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/23 12:28:28 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 14:13:36 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,16 +66,13 @@ int RPN::evaluate(const std::string& expression) {
 			// 	if (b == 0) throw std::runtime_error("Error: Division by zero");
 			// 	_stack.push(a / b);
 			// }
-		} else {
-			// trying to convert token to integer
-			try {
-				size_t pos;
-				int num = std::stoi(token, &pos);
-				if (pos != token.size()) throw std::invalid_argument("Invalid number");
+		} 	else {
+			// Nur einzelne Ziffern von 0–9 erlaubt (wie im Subject verlangt)
+				if (token.length() != 1 || !std::isdigit(static_cast<unsigned char>(token[0]))) {
+					throw std::runtime_error("Error: 0-9");
+				}
+				int num = token[0] - '0';  // '0' → 0, '1' → 1, ..., '9' → 9
 				_stack.push(num);
-			} catch (const std::exception& e) {
-				throw std::runtime_error("Error: Invalid token: " + token);
-			}
 		}
 	}
 	if (_stack.size() != 1) {

@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 13:05:49 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/22 13:09:38 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 14:14:31 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
-		std::cerr << "Error: invalid arguments. Usage: ./rpn <expression>" << std::endl;
+		std::cerr << "Error: invalid arguments. Usage: ./rpn \"expression\"" << std::endl;
 		return 1;
 	}
 	RPN rpn;

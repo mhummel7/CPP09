@@ -6,11 +6,14 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 09:22:26 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/23 09:24:55 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/24 10:45:21 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
+
+// test with this:
+// ./PmergeMe $(shuf -i 1-100000 -n 3000 | tr "\n" " ")
 
 int main(int argc, char** argv) {
 	if (argc < 2) {

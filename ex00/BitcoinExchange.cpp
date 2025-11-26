@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 09:56:16 by mhummel           #+#    #+#             */
-/*   Updated: 2025/10/23 12:06:47 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 10:43:14 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,9 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <cstdlib> // for std::atof
 #include <cctype>  // for std::isspace
-#include <iomanip> // for std::setprecision for 0.90 output instead of 0.9
-#include <limits> // for std::numeric_limits
+#include <limits>  // for std::numeric_limits
+#include <string>  // for std::stod, std::stof
 
 BitcoinExchange::BitcoinExchange() {
 	std::ifstream dbFile("data.csv");
@@ -33,10 +32,13 @@ BitcoinExchange::BitcoinExchange() {
 		if (std::getline(ss, date, ',') && std::getline(ss, valueStr)) {
 			date = trim(date);
 			valueStr = trim(valueStr);
-			char* endptr;
-			float value = static_cast<float>(strtod(valueStr.c_str(), &endptr));
-			if (*endptr != '\0' || value < 0) continue; // Invalid value in DB, skip
-			_db[date] = value;
+			try {
+				float value = std::stof(valueStr);
+				if (value < 0) continue; // Invalid value in DB, skip
+				_db[date] = value;
+			} catch (...) {
+				continue; // Invalid conversion, skip
+			}
 		}
 	}
 	if (_db.empty()) {
@@ -86,10 +88,13 @@ bool BitcoinExchange::isValidDate(const std::string& date) {
 }
 
 float BitcoinExchange::getExchangeRate(const std::string& date) {
-	if (_db.empty()) return 0.0f;
+	if (_db.empty()) return -1.0f;
 	std::map<std::string, float>::iterator it = _db.lower_bound(date);
 	if (it != _db.end() && it->first == date) return it->second;
-	if (it == _db.begin()) return _db.begin()->second; // Use first if no lower
+	if (it == _db.begin()) {
+		// No lower rate available (date too early)
+		return -1.0f;
+	}
 	--it;
 	return it->second;
 }
@@ -97,17 +102,21 @@ float BitcoinExchange::getExchangeRate(const std::string& date) {
 void BitcoinExchange::processInput(const std::string& inputFile) {
 	std::ifstream inFile(inputFile.c_str());
 	if (!inFile.is_open()) {
-		std::cerr << "Error: Could not open file." << std::endl;
+		std::cerr << "Error: could not open file." << std::endl;
 		return;
 	}
 	// Check if file is empty
-    inFile.seekg(0, std::ios::end);
-    if (inFile.tellg() == 0) {
-        std::cerr << "Error: empty input file." << std::endl;
-        inFile.close();
-        return;
-    }
-    inFile.seekg(0, std::ios::beg);
+	inFile.seekg(0, std::ios::end);
+	if (inFile.tellg() == 0) {
+		std::cerr << "Error: empty input file." << std::endl;
+		inFile.close();
+		return;
+	}
+	inFile.seekg(0, std::ios::beg);
+
+	// Skip the header line
+	std::string header;
+	std::getline(inFile, header);
 
 	std::string line;
 	while (std::getline(inFile, line)) {
@@ -122,26 +131,35 @@ void BitcoinExchange::processInput(const std::string& inputFile) {
 		}
 		date = trim(date);
 		valueStr = trim(valueStr);
-		char* endptr;
-		double valueD = strtod(valueStr.c_str(), &endptr);
-		if (*endptr != '\0' || valueD < 0) {
-			if (valueD < 0) std::cerr << "Error: not a positive number." << std::endl;
-			else std::cerr << "Error: bad input => " << original_line << std::endl;
+		double valueD;
+		try {
+			valueD = std::stod(valueStr);
+		} catch (const std::invalid_argument&) {
+			std::cerr << "Error: bad input => " << original_line << std::endl;
+			continue;
+		} catch (const std::out_of_range&) {
+			std::cerr << "Error: too large a number." << std::endl;
 			continue;
 		}
-		// Strengere Grenze: 10^15, um Präzisionsverlust zu vermeiden
-		if (valueD > 1e15) {
-			std::cerr << "Error: Number is too big => " << original_line << std::endl;
+		if (valueD < 0) {
+			std::cerr << "Error: not a positive number." << std::endl;
 			continue;
 		}
-		// Kein Cast zu float, behalte double
+		if (valueD > 1000.0) {
+			std::cerr << "Error: too large a number." << std::endl;
+			continue;
+		}
 		if (date.length() != 10 || !isValidDate(date)) {
 			std::cerr << "Error: bad input => " << original_line << std::endl;
 			continue;
 		}
 		float rate = getExchangeRate(date);
-		double result = valueD * static_cast<double>(rate); // Berechnung in double
-		std::cout << std::fixed << std::setprecision(2) << date << " => " << valueD << " = " << result << std::endl;
+		if (rate < 0) {
+			std::cerr << "Error: no exchange rate available for date " << date << std::endl;
+			continue;
+		}
+		double result = valueD * static_cast<double>(rate);
+		std::cout << date << " => " << valueD << " = " << result << std::endl;
 	}
 	inFile.close();
 }
