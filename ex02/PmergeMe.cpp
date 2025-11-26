@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 09:31:38 by mhummel           #+#    #+#             */
-/*   Updated: 2025/11/24 10:22:55 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 14:20:42 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ void PmergeMe::initMainChainDeq(std::deque<int> *main_chain, const std::deque<st
 		main_chain->push_back(it->second);
 	}
 	if (!pairs.empty()) {
-		main_chain->push_front(pairs.begin()->first);
+		main_chain->insert(main_chain->begin(), pairs.begin()->first);
 	}
 }
 
@@ -266,7 +266,7 @@ void PmergeMe::execute() {
 	std::cout << "After: ";
 	printContainer(vecMain);
 
-	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::vector : " << std::fixed << std::setprecision(5) << vecTime << " us" << std::endl;
-	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::deque : " << std::fixed << std::setprecision(5) << deqTime << " us" << std::endl;
+	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::vector : " << std::fixed << std::setprecision(6) << vecTime << " us" << std::endl;
+	std::cout << "Time to process a range of " << _unsorted.size() << " elements with std::deque : " << std::fixed << std::setprecision(6) << deqTime << " us" << std::endl;
 }
 
