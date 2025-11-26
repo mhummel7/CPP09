@@ -6,17 +6,11 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 09:56:16 by mhummel           #+#    #+#             */
-/*   Updated: 2025/11/26 10:43:14 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 15:09:24 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <cctype>  // for std::isspace
-#include <limits>  // for std::numeric_limits
-#include <string>  // for std::stod, std::stof
 
 BitcoinExchange::BitcoinExchange() {
 	std::ifstream dbFile("data.csv");

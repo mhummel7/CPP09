@@ -6,11 +6,16 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 09:22:26 by mhummel           #+#    #+#             */
-/*   Updated: 2025/11/24 10:45:21 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 15:15:32 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
+
+/*  CPP09 ex02 – PmergeMe (Ford-Johnson / merge-insertion sort)
+    Containers: std::vector and std::deque
+    Reason    : subject requires two different STL containers + time comparison
+                → vector (best cache locality) + deque (fast push_front/back)    */
 
 // test with this:
 // ./PmergeMe $(shuf -i 1-100000 -n 3000 | tr "\n" " ")

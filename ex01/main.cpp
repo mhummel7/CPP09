@@ -6,12 +6,16 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 13:05:49 by mhummel           #+#    #+#             */
-/*   Updated: 2025/11/26 14:14:31 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 15:15:45 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
 #include <iostream>
+
+/*  CPP09 ex01 – RPN
+    Container: std::stack<int>
+    Reason   : explicitly required by the subject                             */
 
 int main(int argc, char** argv) {
 	if (argc != 2) {

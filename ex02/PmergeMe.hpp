@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 08:36:20 by mhummel           #+#    #+#             */
-/*   Updated: 2025/11/24 10:24:15 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 15:15:08 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,12 @@
 #define PMERGEME_HPP
 
 #include <vector>
+//	std::vector is cache-friendly, offers fast random access and is perfect
+//	for binary search + std::inplace_merge
 #include <deque>
+//	std::deque is the second container required by the subject.
+//	It has almost the same performance as vector for random access while
+//	supporting very fast insertions at both ends → ideal comparison candidate
 #include <iostream>
 #include <chrono>
 #include <set>
