@@ -6,7 +6,7 @@
 /*   By: mhummel <mhummel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 13:20:13 by mhummel           #+#    #+#             */
-/*   Updated: 2025/11/26 14:13:36 by mhummel          ###   ########.fr       */
+/*   Updated: 2025/11/26 15:25:35 by mhummel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,15 +57,6 @@ int RPN::evaluate(const std::string& expression) {
 				if (b == 0) throw std::runtime_error("Error: Division by zero");
 				_stack.push(a / b);
 			}
-			// int b = _stack.top(); _stack.pop();
-			// int a = _stack.top(); _stack.pop();
-			// if (token == "+") _stack.push(a + b);
-			// else if (token == "-") _stack.push(a - b);
-			// else if (token == "*") _stack.push(a * b);
-			// else if (token == "/") {
-			// 	if (b == 0) throw std::runtime_error("Error: Division by zero");
-			// 	_stack.push(a / b);
-			// }
 		} 	else {
 			// Nur einzelne Ziffern von 0–9 erlaubt (wie im Subject verlangt)
 				if (token.length() != 1 || !std::isdigit(static_cast<unsigned char>(token[0]))) {
